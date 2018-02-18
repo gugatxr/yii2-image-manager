@@ -95,6 +95,41 @@ class ImageManagerGetPath extends Component {
 		return $return;
 	}
 
+		/**
+	 * Get the path for the given ImageManager_id record
+	 * @param int $ImageManager_id ImageManager record for which the path needs to be generated
+	 * @param int $width Thumbnail image width
+	 * @param int $height Thumbnail image height
+	 * @param string $thumbnailMode Thumbnail mode
+	 * @return null|string Full path is returned when image is found, null if no image could be found
+	 */
+	public function getOriginalImagePath($ImageManager_id) {
+		//default return
+		$return = null;
+		$mImageManager = ImageManager::findOne($ImageManager_id);
+
+		//check if not empty
+		if ($mImageManager !== null) {
+
+			$sMediaPath = null;
+			if ($this->mediaPath !== null) {
+				$sMediaPath = $this->mediaPath;
+			}
+
+			$sFileExtension = pathinfo($mImageManager->fileName, PATHINFO_EXTENSION);
+			//get image file path
+			$sImageFilePath = $sMediaPath . '/' . $mImageManager->id . '_' . $mImageManager->fileHash . '.' . $sFileExtension;
+			//check file exists
+
+			if (file_exists($sImageFilePath)) {
+				$return = \Yii::$app->imageresize->getUrlOriginalSize($sImageFilePath, $mImageManager->fileName);
+			} else {
+				$return = null; //isset(\Yii::$app->controller->module->assetPublishedUrl) ? \Yii::$app->controller->module->assetPublishedUrl. "/img/img_no-image.png" : null;
+			}
+		}
+		return $return;
+	}
+
     /**
      * Check if the user configurable variables match the criteria
      * @throws InvalidConfigException
